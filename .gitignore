@@ -1,0 +1,16 @@
+/tags
+/TAGS
+/linux
+/vmlinux
+/vmlinuz
+/System.map
+/Module.markers
+/Module.symvers
+
+!.mailmap
+
+*.orig
+*.old
+*.bak
+*.~
+*.tmp
