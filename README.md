@@ -6,9 +6,10 @@ mt6592 kernel source
 # expect to learn how to build the kernel reading this file.
 
 =========================================
-cd ~/linux_kernel
+cd ~/j608_kernel
 export ARCH=arm
-make mrproper
+export ARCH_MTK_PLATFORM=mt6592
+make clean
 make fly_j608_defconfig
 ./build.sh
 
@@ -16,4 +17,3 @@ make fly_j608_defconfig
 * Not Working
   * MAIN IMGSENSOR
   * SUB IMGSENSOR
-  * Dual SIM (Maybe working. Not tested.)

@@ -84,7 +84,7 @@
  *
  * Author:
  * -------
- *   PC Huang (MTK02204)
+ *   Leo Lee
  *
  *============================================================================
  *             HISTORY
@@ -94,60 +94,19 @@
  * $Modtime:$
  * $Log:$
  *
- * Feb 9 2010 mtk80461
- * [DUMA00154355] JPeg Orientation feature check in
- *
- *
- * Oct 27 2009 mtk02204
- * [DUMA00015869] [Camera Driver] Modifiy camera related drivers for dual/backup sensor/lens drivers.
- *
- *
- * Sep 24 2009 mtk02204
- * [DUMA00134387] [LTK][GW616][Camera]4040 Camera:Camera Quality Test failed.
- *
- *
- * Jul 8 2009 mtk02204
- * [DUMA00008051] [Camera Driver] Add drivers for camera high ISO binning mode.
- *
- *
- * Jul 8 2009 mtk02204
- * [DUMA00008051] [Camera Driver] Add drivers for camera high ISO binning mode.
- *
- *
- * Jul 7 2009 mtk02204
- * [DUMA00008051] [Camera Driver] Add drivers for camera high ISO binning mode.
- *
- *
- * Jun 6 2009 mtk02204
- * [DUMA00119628] MTK camera_recorded video only contain audio but no video with Jean effect
- *
- *
- * Apr 10 2009 mtk02204
- * [DUMA00004178] [Camera] Check in for MTK camera integration
- *
- *
- * Mar 13 2009 mtk02204
- * [DUMA00001084] First Check in of MT6516 multimedia drivers
- *
- *
- * Mar 2 2009 mtk02204
- * [DUMA00001084] First Check in of MT6516 multimedia drivers
- *
- *
- * Feb 6 2009 mtk02204
- * [DUMA00001084] First Check in of MT6516 multimedia drivers
- *
- *
+ * [SP2529YUV V1.0.0]
+ * 8.17.2012 Leo.Lee
+ * .First Release
  *------------------------------------------------------------------------------
- * Upper this line, this part is controlled by CC/CQ. DO NOT MODIFY!!
+ * Upper this line, this part is controlled by GalaxyCoreinc. DO NOT MODIFY!!
  *============================================================================
  ****************************************************************************/
 
-#ifndef __SP2529YUV_CAMERA_CUSTOMIZED_H
-#define __SP2529YUV_CAMERA_CUSTOMIZED_H
+#ifndef __CAMERA_CUSTOMIZED_H
+#define __CAMERA_CUSTOMIZED_H
 
 // the angle between handset and sensor placement in clockwise, should be one of 0, 90, 270
-#define MAIN_SENSOR_ORIENTATION_ANGLE	90	// 90
+#define MAIN_SENSOR_ORIENTATION_ANGLE	90
 #define SUB_SENSOR_ORIENTATION_ANGLE	0		// do not care if the sub sensor does not exist
 
 
@@ -155,7 +114,7 @@
 // Second, we suppose the direction of upward is 0
 // Third, it is 90, 180, 270 in clockwise
 // here we define the main sensor and sub sensor angles to deal with the jpeg orientation
-#define MAIN_SENSOR_TO_PHONE_ANGLE	0
+#define MAIN_SENSOR_TO_PHONE_ANGLE	90
 #define SUB_SENSOR_TO_PHONE_ANGLE	0
 
 
@@ -185,8 +144,8 @@
 									 {CAM_SIZE_05M_WIDTH,CAM_SIZE_05M_HEIGHT}, \
 									 {CAM_SIZE_1M_WIDTH,CAM_SIZE_1M_HEIGHT}, \
 									 {CAM_SIZE_2M_WIDTH,CAM_SIZE_2M_HEIGHT}, \
-							//		 {CAM_SIZE_3M_WIDTH,CAM_SIZE_3M_HEIGHT}, \
-							//		 {CAM_SIZE_5M_WIDTH,CAM_SIZE_5M_HEIGHT}}
+									 {CAM_SIZE_3M_WIDTH,CAM_SIZE_3M_HEIGHT}, \
+									 {CAM_SIZE_5M_WIDTH,CAM_SIZE_5M_HEIGHT}}
 
 // if sub sensor does not exist, set all the parameters as 0
 #define SUB_NUM_OF_PREVIEW_RESOLUTION 0

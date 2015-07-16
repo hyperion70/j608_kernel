@@ -178,7 +178,7 @@ obj-$(CONFIG_MTK_IRTX_SUPPORT) += irtx/
 obj-$(CONFIG_MTK_NFC) += nfc/
 obj-$(CONFIG_MTK_MLOG)	+= mlog/
 
-
+obj-y	+= cam_cal/src/mt6592/dummy_eeprom/
 obj-$(CONFIG_MTK_LENS)   += lens/
 obj-$(CONFIG_MTK_IMGSENSOR)	+= imgsensor/src/
 
