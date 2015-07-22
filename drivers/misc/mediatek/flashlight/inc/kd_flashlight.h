@@ -19,12 +19,6 @@ typedef signed short    MINT16;
 typedef signed int      MINT32;
 #endif
 
-enum
-{
-	e_Max_Strobe_Num_Per_Dev=2,
-	e_Max_Part_Num_Per_Dev=2,
-	e_Max_Sensor_Dev_Num=3,
-};
 
 /* cotta-- added for high current solution */
 #define KD_STROBE_HIGH_CURRENT_WIDTH 0xFF
@@ -51,38 +45,21 @@ typedef enum
     e_CAMERA_NONE_SENSOR=0,
     e_CAMERA_MAIN_SENSOR     = 1,
     e_CAMERA_SUB_SENSOR      = 2,
-    e_CAMERA_MAIN_2_SENSOR   = 4,
+    e_CAMERA_MAIN_2_SENSOR   = 8,
     //for backward compatible
-    e_CAMERA_MAIN_SECOND_SENSOR = 4,
+    e_CAMERA_MAIN_SECOND_SENSOR = 8,
     //DUAL_CAMERA_SUB_2_SENSOR   = 16,
     e_CAMERA_SENSOR_MAX
 } eFlashSensorId;
-
-typedef enum
-{
-    e_FLASH_DRIVER_6332=0,
-
-} eDrvierNameId;
-
 typedef struct
 {
     int (* flashlight_open)(void *pArg);
     int (* flashlight_release)(void *pArg);
-    int (* flashlight_ioctl)(unsigned int cmd, unsigned long arg);
+    int (* flashlight_ioctl)(MUINT32 cmd, MUINT32 arg);
 } FLASHLIGHT_FUNCTION_STRUCT, *PFLASHLIGHT_FUNCTION_STRUCT;
 
-
-
 typedef struct
-{
-    int sensorDev;
-	int strobeId;
-    int arg;
-
-}kdStrobeDrvArg;
-
-typedef struct
-{
+{	
     MUINT32 (* flashlightInit)(PFLASHLIGHT_FUNCTION_STRUCT *pfFunc);
 } KD_FLASHLIGHT_INIT_FUNCTION_STRUCT, *pKD_FLASHLIGHT_INIT_FUNCTION_STRUCT;
 
@@ -113,25 +90,25 @@ typedef enum
 //H means "switch T and Q atomically"
 
 //FLASHLIGHTIOC_T_ENABLE : Tell FLASHLIGHT to turn ON/OFF
-#define FLASHLIGHTIOC_T_ENABLE _IOW(FLASHLIGHT_MAGIC,5, int  )
+#define FLASHLIGHTIOC_T_ENABLE _IOW(FLASHLIGHT_MAGIC,5, unsigned long )
 
 //set flashlight power level 0~31(weak~strong)
-#define FLASHLIGHTIOC_T_LEVEL _IOW(FLASHLIGHT_MAGIC,10, int)
+#define FLASHLIGHTIOC_T_LEVEL _IOW(FLASHLIGHT_MAGIC,10, unsigned long)
 
 //set flashlight time us
-#define FLASHLIGHTIOC_T_FLASHTIME _IOW(FLASHLIGHT_MAGIC,15, int)
+#define FLASHLIGHTIOC_T_FLASHTIME _IOW(FLASHLIGHT_MAGIC,15, unsigned long)
 
 //set flashlight state
-#define FLASHLIGHTIOC_T_STATE _IOW(FLASHLIGHT_MAGIC,20, int)
+#define FLASHLIGHTIOC_T_STATE _IOW(FLASHLIGHT_MAGIC,20, unsigned long)
 
 //get flash type
 #define FLASHLIGHTIOC_G_FLASHTYPE _IOR(FLASHLIGHT_MAGIC,25, int)
 
 //set flashlight driver
-#define FLASHLIGHTIOC_X_SET_DRIVER _IOWR(FLASHLIGHT_MAGIC,30,int)
+#define FLASHLIGHTIOC_X_SET_DRIVER _IOWR(FLASHLIGHT_MAGIC,30,unsigned long)
 
 /* cotta-- set capture delay of sensor */
-#define FLASHLIGHTIOC_T_DELAY _IOW(FLASHLIGHT_MAGIC, 35, int)
+#define FLASHLIGHTIOC_T_DELAY _IOW(FLASHLIGHT_MAGIC, 35, unsigned int)
 
 
 #define FLASH_IOC_SET_TIME_OUT_TIME_MS  _IOR(FLASHLIGHT_MAGIC, 100, int)
@@ -142,7 +119,6 @@ typedef enum
 
 #define FLASH_IOC_PRE_ON           	_IOR(FLASHLIGHT_MAGIC, 125, int)
 #define FLASH_IOC_GET_PRE_ON_TIME_MS           	_IOR(FLASHLIGHT_MAGIC, 130, int)
-#define FLASH_IOC_GET_PRE_ON_TIME_MS_DUTY           	_IOR(FLASHLIGHT_MAGIC, 131, int)
 
 #define FLASH_IOC_SET_REG_ADR  _IOR(FLASHLIGHT_MAGIC, 135, int)
 #define FLASH_IOC_SET_REG_VAL  _IOR(FLASHLIGHT_MAGIC, 140, int)
@@ -153,21 +129,11 @@ typedef enum
 #define FLASH_IOC_GET_MAIN_PART_ID           	_IOR(FLASHLIGHT_MAGIC, 155, int)
 #define FLASH_IOC_GET_SUB_PART_ID           	_IOR(FLASHLIGHT_MAGIC, 160, int)
 #define FLASH_IOC_GET_MAIN2_PART_ID           	_IOR(FLASHLIGHT_MAGIC, 165, int)
-#define FLASH_IOC_GET_PART_ID           	_IOR(FLASHLIGHT_MAGIC, 166, int)
 
 
 #define FLASH_IOC_HAS_LOW_POWER_DETECT _IOR(FLASHLIGHT_MAGIC, 170, int)
 #define FLASH_IOC_LOW_POWER_DETECT_START _IOR(FLASHLIGHT_MAGIC, 175, int)
 #define FLASH_IOC_LOW_POWER_DETECT_END _IOR(FLASHLIGHT_MAGIC, 180, int)
-#define FLASH_IOC_IS_LOW_POWER _IOR(FLASHLIGHT_MAGIC, 182, int)
-
-
-#define FLASH_IOC_GET_ERR _IOR(FLASHLIGHT_MAGIC, 185, int)
-#define FLASH_IOC_GET_PROTOCOL_VERSION _IOR(FLASHLIGHT_MAGIC, 190, int) //0: old, 1: 95
-
-#define FLASH_IOC_IS_CHARGER_IN _IOR(FLASHLIGHT_MAGIC, 195, int)
-#define FLASH_IOC_IS_OTG_USE _IOR(FLASHLIGHT_MAGIC, 200, int)
-#define FLASH_IOC_GET_FLASH_DRIVER_NAME_ID _IOR(FLASHLIGHT_MAGIC, 205, int)
 
 
 
@@ -177,8 +143,6 @@ typedef struct
     int arg;
 
 }StrobeDrvArg;
-
-
 
 
 #endif

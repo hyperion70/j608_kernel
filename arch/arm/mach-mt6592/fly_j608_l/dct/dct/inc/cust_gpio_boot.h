@@ -850,9 +850,9 @@
 #define GPIO114_DATAOUT   GPIO_OUT_ZERO
 
 //Configureation for Pin 115
-#define GPIO115_MODE      GPIO_MODE_00
+#define GPIO115_MODE      GPIO_MODE_00			// PIN: [MODE] [PULL_SEL] [DIN] [DOUT] [PULL EN] [DIR] [IES]
 #define GPIO115_DIR       GPIO_DIR_OUT
-#define GPIO115_PULLEN    GPIO_PULL_DISABLE
+#define GPIO115_PULLEN    GPIO_PULL_DISABLE		// 115:    0        0       0     0        1       1     0  CAMERA_POWER_ON_PIN GPIO115
 #define GPIO115_PULL      GPIO_PULL_DOWN
 #define GPIO115_DATAOUT   GPIO_OUT_ZERO
 
