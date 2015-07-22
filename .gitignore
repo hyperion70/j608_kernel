@@ -14,3 +14,13 @@
 *.bak
 *.~
 *.tmp
+
+pmic_drv.c
+cust_adc.h
+cust_eint_md1.h
+cust_eint.h
+cust_gpio_boot.h
+cust_gpio_usage.h
+cust_kpd.h
+cust_power.h
+pmic_drv.h
