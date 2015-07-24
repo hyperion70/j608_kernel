@@ -1,4 +1,5 @@
 #$(call all-subdir-src-or-makefile)
+
 include $(srctree)/drivers/misc/mediatek/Makefile.custom
 
 # For MT6795 FPGA bring-up
@@ -9,11 +10,6 @@ else
 ifneq (,$(filter $(CONFIG_ARCH_MT6735) $(CONFIG_ARCH_MT6735M) $(CONFIG_ARCH_MT6753), y))
 include $(srctree)/drivers/misc/mediatek/Makefile.mt6735
 else
-
-ifneq (,$(filter $(CONFIG_ARCH_MT6580), y))
-include $(srctree)/drivers/misc/mediatek/Makefile.mt6580
-else
-
 
 ifeq ($(CONFIG_MTK_L2C_SHARE),y)
 obj-y   += l2c_share/
@@ -179,27 +175,22 @@ obj-$(CONFIG_MTK_NFC) += nfc/
 obj-$(CONFIG_MTK_MLOG)	+= mlog/
 
 obj-y	+= cam_cal/src/mt6592/dummy_eeprom/
-obj-$(CONFIG_MTK_LENS)   += lens/
-obj-$(CONFIG_MTK_IMGSENSOR)	+= imgsensor/src/
-
-
-ifeq ($(wildcard $(srctree)/drivers/misc/mediatek/mach/$(MTK_PLATFORM)/$(ARCH_MTK_PROJECT)/cam_cal),)
-obj-$(CONFIG_MTK_CAM_CAL)	+= cam_cal/src/
-endif
-
-obj-$(CONFIG_MTK_FLASHLIGHT)	+= flashlight/src/
+obj-y	+= eeprom/dummy_eeprom/
+obj-y   += lens/
+obj-y	+= imgsensor/src/
+obj-y	+= flashlight/src/
 
 obj-$(CONFIG_MTK_SYNC)	+= sync/
 
 #rtc must compile before power, because they are both in fs_initcall, rtc need initial first for PMIC alarm call back
-obj-$(CONFIG_MTK_RTC)	+= rtc/
-obj-$(CONFIG_MTK_BOOT)	+= boot/
-obj-$(CONFIG_MTK_BOOT_REASON)	+= boot_reason/
-obj-$(CONFIG_MTK_CHIP)	+= chip/
-obj-$(CONFIG_MTK_GPIO)	+= gpio/
-obj-$(CONFIG_MTK_EINT) += eint/
-obj-$(CONFIG_MTK_SERIAL)	+= uart/
-obj-$(CONFIG_MTK_PMIC_WRAP)	+= pmic_wrap/
+obj-y	+= rtc/
+obj-y	+= boot/
+obj-y	+= boot_reason/
+obj-y	+= chip/
+obj-y	+= gpio/
+obj-y	+= eint/
+obj-y	+= uart/
+obj-y	+= pmic_wrap/
 
 obj-$(CONFIG_MTK_HDMI_SUPPORT)	+= hdmi/
 obj-$(CONFIG_MTK_HDMI_SUPPORT)	+= ext_disp/
@@ -219,7 +210,7 @@ endif
 #obj-$(CONFIG_MTK_CMMB) += cmmbdrv/
 obj-y	+= devapc/
 obj-y	+= devinfo/
-obj-$(CONFIG_MTK_GPU_SUPPORT)	+= gpu/
+obj-y	+= gpu/
 
 obj-y	+= almk/
 obj-$(CONFIG_MTK_JPEG)	+= jpeg/
@@ -239,27 +230,27 @@ ifeq ($(CONFIG_CUSTOM_KERNEL_CHARGEPUMP),y)
 obj-y	+= chargepump/
 endif
 
-obj-$(CONFIG_MTK_PMIC)	+= power/
-obj-$(CONFIG_MTK_I2C)	+= i2c/
-obj-$(CONFIG_MTK_PWM)	+= pwm/
+obj-y	+= power/
+obj-y	+= i2c/
+obj-y	+= pwm/
 obj-$(CONFIG_MTK_SMI)	+= smi/
 obj-$(CONFIG_MTK_BTCVSD) += btcvsd/
 obj-$(CONFIG_MTK_SOUND)	+= sound/
 obj-$(CONFIG_MTK_SPI)	+= spi/
-obj-$(CONFIG_MTK_SPM)	+= spm/
+obj-y	+= spm/
 
 # USB need to after gpio
 obj-$(CONFIG_USB_MTK_HDRC)	+= usb20/
-obj-$(CONFIG_MTK_USBFSH)	+= usb11/
+obj-y	+= usb11/
 obj-$(CONFIG_USB_MU3D_DRV)	+= mu3d/
 obj-$(CONFIG_USB_MU3D_DRV)	+= mu3phy/
 
 obj-$(CONFIG_MTK_TEST_XHCI)   +=  xhci_test/
 
 obj-y	+= vibrator/
-obj-$(CONFIG_MTK_WD_KICKER)		+= wdt/
-obj-$(CONFIG_MTK_FREQ_HOPPING)	+= freqhopping/
-obj-$(CONFIG_SECURITY_SELINUX)	+= selinux_warning/
+obj-y	+= wdt/
+obj-y	+= freqhopping/
+obj-y	+= selinux_warning/
 # MTK PASR SW flow
 obj-$(CONFIG_MTKPASR)	+= mtkpasr/
 
@@ -292,7 +283,6 @@ obj-$(CONFIG_PWR_LOSS_MTK_TEST) += power-loss-test/
 
 endif           # end of CONFIG_ARCH_MT6735
 endif		# end of CONFIG_ARCH_MT6795
-endif       # end of CONFIG_ARCH_MT6580
 
 
 ifneq (,$(filter $(CONFIG_MTK_PLATFORM), "mt6752"))
