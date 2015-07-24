@@ -118,7 +118,7 @@ static struct i2c_board_info __initdata ft5206_i2c_tpd={ I2C_BOARD_INFO("mtk-foc
  
 static struct i2c_driver tpd_i2c_driver = {
   	.driver = {
-	 	.name 	= "mtk-focal",
+	 	.name 	= "FT5336",
   	},
   	.probe 	= tpd_probe,
   	.remove 	= tpd_remove,
