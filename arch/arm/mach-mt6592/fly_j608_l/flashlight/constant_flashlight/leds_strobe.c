@@ -23,19 +23,8 @@
 #include <linux/ktime.h>
 #include <linux/xlog.h>
 #include <linux/version.h>
-
 #include <mach/upmu_common.h>
 #include <mach/mt6333.h>
-
-
-/*
-#if defined(LENOVO_PROJECT_STELLA)
-#define FLASH_BD7710
-#else
-#define FLASH_RT9387
-#endif
-*/
-
 /******************************************************************************
  * Debug configuration
 ******************************************************************************/
@@ -79,13 +68,9 @@
 /******************************************************************************
  * local variables
 ******************************************************************************/
-
 static DEFINE_SPINLOCK(g_strobeSMPLock); /* cotta-- SMP proection */
-
-
 static struct work_struct workTimeOut;
 static struct work_struct workWDReset;
-
 static int g_duty=-1;
 static int g_timeOutTimeMs=0;
 
@@ -93,17 +78,9 @@ static int dimLevel[] = {-1,-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 static int flashCur[] = { 1, 2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14};
 static int torchEn [] = { 1, 1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 
-
 static int g_reg;
 static int g_val;
-
-
 static u32 strobe_Res = 0;
-
-
-
-
-
 /*****************************************************************************
 Functions
 *****************************************************************************/
@@ -118,12 +95,9 @@ static void work_WDResetFunc(struct work_struct *data);
 extern kal_uint32 mt6333_config_interface (kal_uint8 RegNum, kal_uint8 val, kal_uint8 MASK, kal_uint8 SHIFT);
 extern kal_uint32 mt6333_read_interface (kal_uint8 RegNum, kal_uint8 *val, kal_uint8 MASK, kal_uint8 SHIFT);
 
-
-
 void mt6333_set_rg_chrwdt_en(kal_uint8 val); //enable
 extern void mt6333_set_rg_chrwdt_wr(kal_uint8 val); //reset
 extern void mt6333_set_rg_chrwdt_td(kal_uint8 val); //wdog time set
-
 
 static void setReg(int reg, int val)
 
@@ -151,20 +125,11 @@ static int BD7710_read_reg(struct i2c_client *client, u8 reg,u8 *val)
 
 {
     mt6333_config_interface(reg, val, 0xff, 0);
-
-
 }
-
 static int getReg(int reg)
-	//struct BD7710_platform_data *pdata = chip->pdata;
-
-
-
-
-	{
+{
     kal_uint8 valTemp;
     mt6333_read_interface(reg, &valTemp, 0xff, 0);
-
     return valTemp;
 }
 static void setRegEx(int reg, int val, int mask, int shift)
@@ -174,26 +139,14 @@ static void setRegEx(int reg, int val, int mask, int shift)
     v &= ~(mask << shift);
     v |= (val << shift);
     setReg(reg, v);
-	}
-
-
-
-
+}
 static int FL_preOn(void)
-
-
-
-
 {
 	PK_DBG("FL_preOn");
     setRegEx(0xF3,0x1,0x1,5); //work around for chip issue
     setRegEx(0xF7,0x1,0x1,5); //work around for chip issue
-
-
     if(dimLevel[g_duty]>=0)
-
-
-{
+    {
         setRegEx(0x32,0x1,0x1,4);  //torch mode
         setRegEx(0x35,flashCur[g_duty],0xf,0); //current
         setRegEx(0x33,dimLevel[g_duty],0x1f,0); //dimming
@@ -204,55 +157,35 @@ static int FL_preOn(void)
         setRegEx(0xe2,0x40,0xff,0); //workaround, must call
         setRegEx(0xeb,0x40,0xff,0); //workaround, must call
         setRegEx(0x16,0x1,0x1,0); //power source on
-}
-
-
-
-
-
-
-//	u8 tmp4,tmp5;
+    }
 	else if(torchEn[g_duty]==1)
-	{
+    {
         setRegEx(0x32,0x1,0x1,4);  //torch mode
         setRegEx(0x35,flashCur[g_duty],0xf,0); //current
         setRegEx(0x32,0,0x1,0); //dim en
         setRegEx(0xe2,0x40,0xff,0); //workaround, must call
         setRegEx(0xeb,0x40,0xff,0); //workaround, must call
         setRegEx(0x16,0x1,0x1,0); //power source on
-	}
-	else
-	{
+    }
+    else
+    {
         setRegEx(0x32,0x0,0x1,4);  //torch mode=0, flash mode
         setRegEx(0x35,flashCur[g_duty],0xf,0); //current
         setRegEx(0x37,0x3,0x3,6); //time out, 800ms
         setRegEx(0xe2,0x40,0xff,0); //workaround, must call
         setRegEx(0xeb,0x40,0xff,0); //workaround, must call
         setRegEx(0x16,0x1,0x1,0); //power source on
-
-	//mt_set_gpio_out(GPIO_CAMERA_FLASH_EXT1_PIN, GPIO_OUT_ZERO);
-	//udelay(50);
-
-
-}
-
-
-    return 0;
-}
-
+    }
+	return 0;
+    }
 
 static int FL_Enable(void)
 {
     PK_DBG("FL_Enable+");
     setRegEx(0x31,0x1,0x1,0); //flash en
-
-
-
     PK_DBG("FL_Enable-");
     return 0;
 }
-
-
 
 static int FL_Disable(void)
 {
@@ -271,14 +204,10 @@ static int FL_Disable(void)
 
 static int FL_dim_duty(kal_uint32 duty)
 {
-
 	PK_DBG("FL_dim_duty line=%d\n",__LINE__);
-
-	g_duty=duty;
+	g_duty = duty;
     return 0;
 }
-
-
 static int FL_Init(void)
 {
     PK_DBG(" FL_Init line=%d\n",__LINE__);
@@ -288,8 +217,6 @@ static int FL_Init(void)
 	INIT_WORK(&workTimeOut, work_timeOutFunc);
     return 0;
 }
-
-
 static int FL_Uninit(void)
 {
 	FL_Disable();
@@ -304,21 +231,20 @@ static struct hrtimer g_WDResetTimer;
 int g_b1stInit=1;
 int g_bOpen = 0;
 static void work_timeOutFunc(struct work_struct *data)
-	{
+{
     FL_Disable();
     PK_DBG("ledTimeOut_callback\n");
-	}
+}
 
 static void work_WDResetFunc(struct work_struct *data)
 {
 	ktime_t ktime;
 	mt6333_set_rg_chrwdt_wr(1); // write 1 to kick chr wdt
 	if(g_bOpen==1)
-{
+	{
 		ktime = ktime_set( 0, 1000*1000000 );//1s
 		hrtimer_start( &g_WDResetTimer, ktime, HRTIMER_MODE_REL );
-}
-
+	}
 }
 
 static enum hrtimer_restart ledTimeOutCallback(struct hrtimer *timer)
@@ -331,7 +257,6 @@ static enum hrtimer_restart ledTimeOutCallback(struct hrtimer *timer)
     return HRTIMER_NORESTART;
 }
 static enum hrtimer_restart ledWDResetCallback(struct hrtimer *timer)
-
 {
     schedule_work(&workWDReset);
     return HRTIMER_NORESTART;
@@ -344,14 +269,13 @@ User interface
 static void timerInit(void)
 {
 	ktime_t ktime;
-    //printk(KERN_ALERT "work handler function./n");
 
 
     mt6333_set_rg_chrwdt_wr(1); // write 1 to kick chr wdt
 
 
 	if(g_b1stInit==1)
-{
+	{
 		g_b1stInit=0;
 	    INIT_WORK(&workWDReset, work_WDResetFunc);
 	    hrtimer_init( &g_WDResetTimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL );
@@ -507,14 +431,10 @@ static int constant_flashlight_release(void *pArg)
         /* LED On Status */
 
         spin_unlock_irq(&g_strobeSMPLock);
-
     	FL_Uninit();
     }
-
     PK_DBG(" Done\n");
-
     return 0;
-
 }
 
 
@@ -546,41 +466,6 @@ ssize_t strobe_VDIrq(void)
 
 EXPORT_SYMBOL(strobe_VDIrq);
 
-
-/***************                   *******************/
-
-
-
-
-		//mdelay(4);
-
-
-
-
-	//flash
-	//torch
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//    	.platform_data	= &chip,
-
-
-
-
-
-
-/*****************************************************************************/
 
 
 
