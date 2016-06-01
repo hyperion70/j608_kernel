@@ -13,6 +13,11 @@
 #include <asm/atomic.h>
 #include "BU6424AF.h"
 #include "../camera/kd_camera_hw.h"
+#include <linux/xlog.h>
+#ifdef CONFIG_COMPAT
+#include <linux/compat.h>
+#endif
+
 
 #define LENS_I2C_BUSNUM 1
 static struct i2c_board_info __initdata kd_lens_dev={ I2C_BOARD_INFO("BU6424AF", 0x18)};
@@ -23,7 +28,7 @@ static struct i2c_board_info __initdata kd_lens_dev={ I2C_BOARD_INFO("BU6424AF",
 
 #define BU6424AF_DEBUG
 #ifdef BU6424AF_DEBUG
-#define BU6424AFDB printk
+#define BU6424AFDB pr_debug
 #else
 #define BU6424AFDB(x,...)
 #endif
