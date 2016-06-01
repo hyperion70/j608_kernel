@@ -2,8 +2,6 @@ include $(srctree)/drivers/misc/mediatek/Makefile.custom
 
 obj-$(CONFIG_MTK_PMIC)          += pmic.o upmu_common.o ncp6335.o fan53555.o
 
-obj-$(CONFIG_MTK_PMIC) += tps6128x.o
-
 ifeq ($(CONFIG_MTK_MT6333_SUPPORT),y)
     obj-$(CONFIG_MTK_PMIC) += mt6333.o
 endif
