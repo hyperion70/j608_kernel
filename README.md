@@ -7,13 +7,11 @@ mt6592 kernel source
 
 =========================================
 cd ~/j608_kernel
-export ARCH=arm
-export ARCH_MTK_PLATFORM=mt6592
-make clean
-make fly_j608_defconfig
-./build.sh
+mkdir out
+make ARCH=arm ARCH_MTK_PLATFORM=mt6592 O=out fly_j608_defconfig
+make ARCH=arm ARCH_MTK_PLATFORM=mt6592 O=out
 
 =========================================
 * Not Working
-  * MAIN IMGSENSOR
-  * SUB IMGSENSOR
+  * autofocus
+
