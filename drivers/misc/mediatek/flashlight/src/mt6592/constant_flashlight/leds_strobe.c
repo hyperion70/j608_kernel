@@ -23,19 +23,8 @@
 #include <linux/ktime.h>
 #include <linux/xlog.h>
 #include <linux/version.h>
-
 #include <mach/upmu_common.h>
 #include <mach/mt6333.h>
-
-
-/*
-#if defined(LENOVO_PROJECT_STELLA)
-#define FLASH_BD7710
-#else
-#define FLASH_RT9387
-#endif
-*/
-
 /******************************************************************************
  * Debug configuration
 ******************************************************************************/
@@ -46,15 +35,15 @@
 // ANDROID_LOG_INFO
 // ANDROID_LOG_DEBUG
 // ANDROID_LOG_VERBOSE
-#define TAG_NAME "leds_strobe.c"
+#define TAG_NAME "[leds_strobe.c]"
 #define PK_DBG_NONE(fmt, arg...)    do {} while (0)
-#define PK_DBG_FUNC(fmt, arg...)    xlog_printk(ANDROID_LOG_DEBUG  , TAG_NAME, KERN_INFO  "%s: " fmt, __FUNCTION__ ,##arg)
-#define PK_WARN(fmt, arg...)        xlog_printk(ANDROID_LOG_WARNING, TAG_NAME, KERN_WARNING  "%s: " fmt, __FUNCTION__ ,##arg)
-#define PK_NOTICE(fmt, arg...)      xlog_printk(ANDROID_LOG_DEBUG  , TAG_NAME, KERN_NOTICE  "%s: " fmt, __FUNCTION__ ,##arg)
-#define PK_INFO(fmt, arg...)        xlog_printk(ANDROID_LOG_INFO   , TAG_NAME, KERN_INFO  "%s: " fmt, __FUNCTION__ ,##arg)
-#define PK_TRC_FUNC(f)              xlog_printk(ANDROID_LOG_DEBUG  , TAG_NAME,  "<%s>\n", __FUNCTION__);
-#define PK_TRC_VERBOSE(fmt, arg...) xlog_printk(ANDROID_LOG_VERBOSE, TAG_NAME,  fmt, ##arg)
-#define PK_ERROR(fmt, arg...)       xlog_printk(ANDROID_LOG_ERROR  , TAG_NAME, KERN_ERR "%s: " fmt, __FUNCTION__ ,##arg)
+#define PK_DBG_FUNC(fmt, arg...)    pr_debug(TAG_NAME "%s: " fmt, __FUNCTION__ ,##arg)
+#define PK_WARN(fmt, arg...)        pr_warning(TAG_NAME "%s: " fmt, __FUNCTION__ ,##arg)
+#define PK_NOTICE(fmt, arg...)      pr_notice(TAG_NAME "%s: " fmt, __FUNCTION__ ,##arg)
+#define PK_INFO(fmt, arg...)        pr_info(TAG_NAME "%s: " fmt, __FUNCTION__ ,##arg)
+#define PK_TRC_FUNC(f)              pr_debug(TAG_NAME "<%s>\n", __FUNCTION__)
+#define PK_TRC_VERBOSE(fmt, arg...) pr_debug(TAG_NAME fmt, ##arg)
+#define PK_ERROR(fmt, arg...)       pr_err(TAG_NAME "%s: " fmt, __FUNCTION__ ,##arg)
 
 
 #define DEBUG_LEDS_STROBE
@@ -79,51 +68,29 @@
 /******************************************************************************
  * local variables
 ******************************************************************************/
-
 static DEFINE_SPINLOCK(g_strobeSMPLock); /* cotta-- SMP proection */
-
-
 static struct work_struct workTimeOut;
 static struct work_struct workWDReset;
-
 static int g_duty=-1;
 static int g_timeOutTimeMs=0;
-
 static int dimLevel[] = {-1,-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 static int flashCur[] = { 1, 2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14};
 static int torchEn [] = { 1, 1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 
-
 static int g_reg;
 static int g_val;
-
-
 static u32 strobe_Res = 0;
-
-
-
-
-
 /*****************************************************************************
 Functions
 *****************************************************************************/
-
-
-
-    /*CAMERA-FLASH-EN */
-
-
 static void work_timeOutFunc(struct work_struct *data);
 static void work_WDResetFunc(struct work_struct *data);
 extern kal_uint32 mt6333_config_interface (kal_uint8 RegNum, kal_uint8 val, kal_uint8 MASK, kal_uint8 SHIFT);
 extern kal_uint32 mt6333_read_interface (kal_uint8 RegNum, kal_uint8 *val, kal_uint8 MASK, kal_uint8 SHIFT);
 
-
-
 void mt6333_set_rg_chrwdt_en(kal_uint8 val); //enable
 extern void mt6333_set_rg_chrwdt_wr(kal_uint8 val); //reset
 extern void mt6333_set_rg_chrwdt_td(kal_uint8 val); //wdog time set
-
 
 static void setReg(int reg, int val)
 
@@ -151,20 +118,11 @@ static int BD7710_read_reg(struct i2c_client *client, u8 reg,u8 *val)
 
 {
     mt6333_config_interface(reg, val, 0xff, 0);
-
-
 }
-
 static int getReg(int reg)
-	//struct BD7710_platform_data *pdata = chip->pdata;
-
-
-
-
-	{
+{
     kal_uint8 valTemp;
     mt6333_read_interface(reg, &valTemp, 0xff, 0);
-
     return valTemp;
 }
 static void setRegEx(int reg, int val, int mask, int shift)
@@ -174,26 +132,14 @@ static void setRegEx(int reg, int val, int mask, int shift)
     v &= ~(mask << shift);
     v |= (val << shift);
     setReg(reg, v);
-	}
-
-
-
-
+}
 static int FL_preOn(void)
-
-
-
-
 {
 	PK_DBG("FL_preOn");
     setRegEx(0xF3,0x1,0x1,5); //work around for chip issue
     setRegEx(0xF7,0x1,0x1,5); //work around for chip issue
-
-
     if(dimLevel[g_duty]>=0)
-
-
-{
+    {
         setRegEx(0x32,0x1,0x1,4);  //torch mode
         setRegEx(0x35,flashCur[g_duty],0xf,0); //current
         setRegEx(0x33,dimLevel[g_duty],0x1f,0); //dimming
@@ -204,55 +150,35 @@ static int FL_preOn(void)
         setRegEx(0xe2,0x40,0xff,0); //workaround, must call
         setRegEx(0xeb,0x40,0xff,0); //workaround, must call
         setRegEx(0x16,0x1,0x1,0); //power source on
-}
-
-
-
-
-
-
-//	u8 tmp4,tmp5;
+    }
 	else if(torchEn[g_duty]==1)
-	{
+    {
         setRegEx(0x32,0x1,0x1,4);  //torch mode
         setRegEx(0x35,flashCur[g_duty],0xf,0); //current
         setRegEx(0x32,0,0x1,0); //dim en
         setRegEx(0xe2,0x40,0xff,0); //workaround, must call
         setRegEx(0xeb,0x40,0xff,0); //workaround, must call
         setRegEx(0x16,0x1,0x1,0); //power source on
-	}
-	else
-	{
+    }
+    else
+    {
         setRegEx(0x32,0x0,0x1,4);  //torch mode=0, flash mode
         setRegEx(0x35,flashCur[g_duty],0xf,0); //current
         setRegEx(0x37,0x3,0x3,6); //time out, 800ms
         setRegEx(0xe2,0x40,0xff,0); //workaround, must call
         setRegEx(0xeb,0x40,0xff,0); //workaround, must call
         setRegEx(0x16,0x1,0x1,0); //power source on
-
-	//mt_set_gpio_out(GPIO_CAMERA_FLASH_EXT1_PIN, GPIO_OUT_ZERO);
-	//udelay(50);
-
-
-}
-
-
-    return 0;
-}
-
+    }
+	return 0;
+    }
 
 static int FL_Enable(void)
 {
     PK_DBG("FL_Enable+");
     setRegEx(0x31,0x1,0x1,0); //flash en
-
-
-
     PK_DBG("FL_Enable-");
     return 0;
 }
-
-
 
 static int FL_Disable(void)
 {
@@ -271,25 +197,16 @@ static int FL_Disable(void)
 
 static int FL_dim_duty(kal_uint32 duty)
 {
-
 	PK_DBG("FL_dim_duty line=%d\n",__LINE__);
-
-	g_duty=duty;
+	g_duty = duty;
     return 0;
 }
-
-
 static int FL_Init(void)
 {
     PK_DBG(" FL_Init line=%d\n",__LINE__);
-
-    /*Init. to disable*/
-
-	INIT_WORK(&workTimeOut, work_timeOutFunc);
+    INIT_WORK(&workTimeOut, work_timeOutFunc);
     return 0;
 }
-
-
 static int FL_Uninit(void)
 {
 	FL_Disable();
@@ -304,63 +221,57 @@ static struct hrtimer g_WDResetTimer;
 int g_b1stInit=1;
 int g_bOpen = 0;
 static void work_timeOutFunc(struct work_struct *data)
-	{
+{
     FL_Disable();
     PK_DBG("ledTimeOut_callback\n");
-	}
+}
 
 static void work_WDResetFunc(struct work_struct *data)
 {
 	ktime_t ktime;
 	mt6333_set_rg_chrwdt_wr(1); // write 1 to kick chr wdt
 	if(g_bOpen==1)
-{
+	{
 		ktime = ktime_set( 0, 1000*1000000 );//1s
 		hrtimer_start( &g_WDResetTimer, ktime, HRTIMER_MODE_REL );
-}
-
+	}
 }
 
 static enum hrtimer_restart ledTimeOutCallback(struct hrtimer *timer)
 {
-
-
-    /*Init. to disable*/
-
     schedule_work(&workTimeOut);
     return HRTIMER_NORESTART;
 }
 static enum hrtimer_restart ledWDResetCallback(struct hrtimer *timer)
-
 {
     schedule_work(&workWDReset);
     return HRTIMER_NORESTART;
 }
 
-/*****************************************************************************
-User interface
-*****************************************************************************/
 
 static void timerInit(void)
 {
 	ktime_t ktime;
-    //printk(KERN_ALERT "work handler function./n");
 
 
+	//mt6333_set_rg_chrwdt_en(0);
     mt6333_set_rg_chrwdt_wr(1); // write 1 to kick chr wdt
+    //mt6333_set_rg_chrwdt_td(0); //4 sec
+    //mt6333_set_rg_chrwdt_en(1);
 
+    //mt6333_set_rg_chrwdt_en(0);
 
 	if(g_b1stInit==1)
-{
+	{
 		g_b1stInit=0;
 	    INIT_WORK(&workWDReset, work_WDResetFunc);
 	    hrtimer_init( &g_WDResetTimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL );
 	    g_WDResetTimer.function=ledWDResetCallback;
 
 	  	INIT_WORK(&workTimeOut, work_timeOutFunc);
-	g_timeOutTimeMs=1000; //1s
-	hrtimer_init( &g_timeOutTimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL );
-	g_timeOutTimer.function=ledTimeOutCallback;
+		g_timeOutTimeMs=1000; //1s
+		hrtimer_init( &g_timeOutTimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL );
+		g_timeOutTimer.function=ledTimeOutCallback;
 	}
 	ktime = ktime_set( 0, 1000*1000000 );//1s
 	hrtimer_start( &g_WDResetTimer, ktime, HRTIMER_MODE_REL );
@@ -368,8 +279,7 @@ static void timerInit(void)
 }
 
 
-
-static int constant_flashlight_ioctl(MUINT32 cmd, MUINT32 arg)
+static int constant_flashlight_ioctl(unsigned int cmd, unsigned long arg)
 {
 	int temp;
 	int i4RetValue = 0;
@@ -380,29 +290,29 @@ static int constant_flashlight_ioctl(MUINT32 cmd, MUINT32 arg)
 	ior_shift = cmd - (_IOR(FLASHLIGHT_MAGIC,0, int));
 	iow_shift = cmd - (_IOW(FLASHLIGHT_MAGIC,0, int));
 	iowr_shift = cmd - (_IOWR(FLASHLIGHT_MAGIC,0, int));
-	PK_DBG("constant_flashlight_ioctl() line=%d ior_shift=%d, iow_shift=%d iowr_shift=%d arg=%d\n",__LINE__, ior_shift, iow_shift, iowr_shift, arg);
+	//PK_DBG("constant_flashlight_ioctl() line=%d ior_shift=%d, iow_shift=%d iowr_shift=%d arg=%d\n",__LINE__, ior_shift, iow_shift, iowr_shift, arg);
     switch(cmd)
     {
 
 		case FLASH_IOC_SET_TIME_OUT_TIME_MS:
-			PK_DBG("FLASH_IOC_SET_TIME_OUT_TIME_MS: %d\n",arg);
+			PK_DBG("FLASH_IOC_SET_TIME_OUT_TIME_MS: %d\n",(int)arg);
 			g_timeOutTimeMs=arg;
 		break;
 
 
     	case FLASH_IOC_SET_DUTY :
-    		PK_DBG("FLASHLIGHT_DUTY: %d\n",arg);
+    		PK_DBG("FLASHLIGHT_DUTY: %d\n",(int)arg);
     		FL_dim_duty(arg);
     		break;
 
 
     	case FLASH_IOC_SET_STEP:
-    		PK_DBG("FLASH_IOC_SET_STEP: %d\n",arg);
+    		PK_DBG("FLASH_IOC_SET_STEP: %d\n",(int)arg);
 
     		break;
 
     	case FLASH_IOC_SET_ONOFF :
-    		PK_DBG("FLASHLIGHT_ONOFF: %d\n",arg);
+    		PK_DBG("FLASHLIGHT_ONOFF: %d\n",(int)arg);
     		if(arg==1)
     		{
 				if(g_timeOutTimeMs!=0)
@@ -419,12 +329,13 @@ static int constant_flashlight_ioctl(MUINT32 cmd, MUINT32 arg)
 				hrtimer_cancel( &g_timeOutTimer );
     		}
     		break;
+
     	case FLASH_IOC_PRE_ON:
     		PK_DBG("FLASH_IOC_PRE_ON\n");
 			FL_preOn();
     		break;
     	case FLASH_IOC_GET_PRE_ON_TIME_MS:
-    		PK_DBG("FLASH_IOC_GET_PRE_ON_TIME_MS: %d\n",arg);
+    		PK_DBG("FLASH_IOC_GET_PRE_ON_TIME_MS: %d\n",(int)arg);
     		temp=13;
     		if(copy_to_user((void __user *) arg , (void*)&temp , 4))
             {
@@ -432,25 +343,28 @@ static int constant_flashlight_ioctl(MUINT32 cmd, MUINT32 arg)
                 return -1;
             }
     		break;
+
         case FLASH_IOC_SET_REG_ADR:
-            PK_DBG("FLASH_IOC_SET_REG_ADR: %d\n",arg);
+            PK_DBG("FLASH_IOC_SET_REG_ADR: %d\n",(int)arg);
             g_reg = arg;
             break;
         case FLASH_IOC_SET_REG_VAL:
-            PK_DBG("FLASH_IOC_SET_REG_VAL: %d\n",arg);
+            PK_DBG("FLASH_IOC_SET_REG_VAL: %d\n",(int)arg);
             g_val = arg;
             break;
         case FLASH_IOC_SET_REG:
-            PK_DBG("FLASH_IOC_SET_REG: %d %d\n",g_reg, g_val);
+            PK_DBG("FLASH_IOC_SET_REG: %d %d\n",(int)g_reg, (int)g_val);
             mt6333_config_interface(g_reg, g_val, 0xff, 0);
             break;
+
         case FLASH_IOC_GET_REG:
-            PK_DBG("FLASH_IOC_GET_REG: %d\n",arg);
+            PK_DBG("FLASH_IOC_GET_REG: %d\n",(int)arg);
             mt6333_read_interface(arg, &valTemp, 0xff, 0);
             i4RetValue = valTemp;
-            PK_DBG("FLASH_IOC_GET_REG: v=%d\n",valTemp);
+            PK_DBG("FLASH_IOC_GET_REG: v=%d\n",(int)valTemp);
             break;
-		default :
+
+        default :
     		PK_DBG(" No such command \n");
     		i4RetValue = -EPERM;
     		break;
@@ -504,17 +418,12 @@ static int constant_flashlight_release(void *pArg)
         g_bOpen=0;
         strobe_Res = 0;
 
-        /* LED On Status */
 
         spin_unlock_irq(&g_strobeSMPLock);
-
     	FL_Uninit();
     }
-
     PK_DBG(" Done\n");
-
     return 0;
-
 }
 
 
@@ -546,41 +455,6 @@ ssize_t strobe_VDIrq(void)
 
 EXPORT_SYMBOL(strobe_VDIrq);
 
-
-/***************                   *******************/
-
-
-
-
-		//mdelay(4);
-
-
-
-
-	//flash
-	//torch
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//    	.platform_data	= &chip,
-
-
-
-
-
-
-/*****************************************************************************/
 
 
 
