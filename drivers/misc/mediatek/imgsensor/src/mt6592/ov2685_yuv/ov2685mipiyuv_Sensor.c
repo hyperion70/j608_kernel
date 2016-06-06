@@ -1515,6 +1515,7 @@ UINT32 OV2685Preview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
     
     OV2685_MIPI_write_cmos_sensor(0x3808,0x03);
     OV2685_MIPI_write_cmos_sensor(0x3809,0x20);
+
     OV2685_MIPI_write_cmos_sensor(0x380a,0x02);
     OV2685_MIPI_write_cmos_sensor(0x380b,0x58);
     OV2685_MIPI_write_cmos_sensor(0x3811,0x04);
